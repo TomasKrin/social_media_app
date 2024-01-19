@@ -58,7 +58,7 @@ ROOT_URLCONF = 'mainsite.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -121,6 +121,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# medija folderis
+MEDIA_ROOT = Path(BASE_DIR, 'library/media')
+
+MEDIA_URL = '/media/'
+
+LOGIN_REDIRECT_URL = '/'
 
 TINYMCE_DEFAULT_CONFIG = {
     'height': 360,
