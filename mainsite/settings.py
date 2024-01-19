@@ -123,7 +123,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # medija folderis
-MEDIA_ROOT = Path(BASE_DIR, 'library/media')
+MEDIA_ROOT = Path(BASE_DIR, 'socialmedia/media')
 
 MEDIA_URL = '/media/'
 
