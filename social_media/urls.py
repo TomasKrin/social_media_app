@@ -3,5 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home_index, name='home'),
+    path('', views.socialmedia_index, name='socialmedia-index'),
+    path('register/', views.register_user, name='register-url'),
 ]

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<form action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <table>
+        <tr>
+            <td>Vartotojas:</td>
+            <td>{{ form.username }}</td>
+        </tr>
+        <tr>
+            <td>Slaptažodis:</td>
+            <td>{{ form.password }}</td>
+        </tr>
+
+    </table>
+    <input type="submit" value="Prisijungti"/>
+    <input type="hidden" name="next" value="{{ next }}"/>
+</form>
+<p><a href="{% url 'password_reset' %}">Pamišote slaptažodį?</a></p>
+{% endblock %}
