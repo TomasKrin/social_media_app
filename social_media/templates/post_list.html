@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container pt-2 pr-3">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 30px;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mt-4">Create a Post</legend>
+                        {{ form | crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-info">Post</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if post_list.all %}
+<div class="wrapper-posts">
+    {% if user.is_authenticated %}
+    <div class="modal-trigger-container">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Create a Post
+        </button>
+    </div>
+    {% endif %}
+    {% for post in post_list %}
+    <div class="postCardWrapper">
+        <div class="postContainer">
+            <small><i><b>{{ post.profile }}</b></i></small>
+            <small>{{ post.date_posted }}</small>
+        </div>
+        <p>{{ post.post }}</p>
+        {% if post.img %}
+        <div class="img-container">
+            <img src="{{ post.img.url }}">
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Belekas nėra</p>
+{% endif %}
+{% endblock %}
