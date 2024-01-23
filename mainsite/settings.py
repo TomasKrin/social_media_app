@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'social_media',
+    'social_media.apps.SocialMediaConfig',
     'polls',
     'chat',
     'tinymce',
@@ -107,7 +107,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Vilnius'
 
 USE_I18N = True
 
@@ -124,7 +124,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # medija folderis
-MEDIA_ROOT = Path(BASE_DIR, 'socialmedia/media')
+MEDIA_ROOT = Path(BASE_DIR, 'social_media/media')
 
 MEDIA_URL = '/media/'
 
