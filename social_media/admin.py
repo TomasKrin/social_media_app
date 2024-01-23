@@ -9,7 +9,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_editable = ('display_name', 'profile_pic',)
     search_fields = ('user', 'display_name',)
     fieldsets = (
-        ('Profile', {'fields': ('display_name', 'profile_pic')}),
+        ('Profile', {'fields': ('user', 'display_name', 'profile_pic')}),
     )
 
 
@@ -18,7 +18,7 @@ class UserPostAdmin(admin.ModelAdmin):
     list_filter = ('date_posted', 'profile',)
     search_fields = ('profile__display_name', 'profile__user__username')
     fieldsets = (
-        ('Post', {'fields': ('post', 'img')}),
+        ('Post', {'fields': ('profile', 'post', 'img')}),
     )
 
 
