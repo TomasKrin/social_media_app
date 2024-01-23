@@ -1,6 +1,4 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -56,7 +54,6 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
     success_url = reverse_lazy('posts')
 
     def get_queryset(self):
-        # Order by 'date_posted' in descending order (newest first)
         return UserPost.objects.all().order_by('-date_posted')
 
     def post(self, request, *args, **kwargs):
@@ -71,12 +68,6 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
         form.instance.profile = self.request.user.profile
         form.save()
         return super().form_valid(form)
-
-# class CreatePost(generic.CreateView):
-#     model = UserPost
-#     form_class = UserPostForm
-#     success_url = 'socialmedia/posts'
-#     template_name = 'post-list.html'
 
 # @login_required
 # def profile(request):
