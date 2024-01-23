@@ -1,0 +1,30 @@
+body{
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+main{
+    display: flex;
+}
+.wrapper {
+    position: absolute;
+    left:0;
+    display: flex;
+    width:200px;
+}
+.sidebar {
+    height: 90vh;
+    overflow-y: auto;
+    background-color: yellow;
+}
+.content {
+    flex: 5;
+    padding: 20px;
+}
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+    }
+}
