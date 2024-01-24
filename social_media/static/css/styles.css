@@ -132,3 +132,18 @@ main{
     width: auto;
     max-width: 100%;
 }
+
+.myprofile-pic{
+    width: 300px;        /* Fixed width */
+    height: 300px;       /* Fixed height */
+    object-position: center;
+    margin-left: 20px:
+    margin-right: 20px;
+}
+
+.profile-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
