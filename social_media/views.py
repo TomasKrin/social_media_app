@@ -1,12 +1,13 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views import generic
 
-from social_media.forms import UserPostForm
-from social_media.models import UserPost
+from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm
+from social_media.models import UserPost, Profile, PostLike
 
 
 @csrf_protect
@@ -63,29 +64,84 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
         else:
             return self.form_invalid(form)
 
-    # formos custom validacija
     def form_valid(self, form):
         form.instance.profile = self.request.user.profile
         form.save()
         return super().form_valid(form)
 
-# @login_required
-# def profile(request):
-#     if request.method == 'POST':
-#         u_form = UserUpdateForm(request.POST, instance=request.user)
-#         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-#
-#         if u_form.is_valid() and p_form.is_valid():
-#             u_form.save()
-#             p_form.save()
-#             messages.success(request, f"Profilis sėkmingai atnaujintas!!!")
-#             return redirect('profile-url')
-#     else:
-#         u_form = UserUpdateForm(instance=request.user)
-#         p_form = ProfileUpdateForm(instance=request.user.profile)
-#
-#     context = {
-#         'u_form': u_form,
-#         'p_form': p_form
-#     }
-#     return render(request, 'profile.html', context=context)
+
+@login_required
+def my_profile_view(request):
+    if request.method == "POST":
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, "Profile upadated!")
+            return redirect('myprofile')
+
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profile)
+
+    profile = Profile.objects.get(user=request.user)
+    context = {
+        'u_form': u_form,
+        'p_form': p_form,
+        'profile': profile,
+        'friends_preview': profile.get_friends()[0:5]
+    }
+
+    return render(request, 'myprofile.html', context=context)
+
+
+def profile_view(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+
+    context = {
+        'profile': profile,
+        'friends_preview': profile.get_friends()[0:5]
+    }
+    if profile.user == request.user:
+        return redirect('myprofile')
+
+    profile.profile_views += 1
+    profile.save()
+    return render(request, 'profile_detail.html', context=context)
+
+
+def friends_view(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+
+    context = {
+        'profile': profile,
+        'friends': profile.get_friends()
+    }
+
+    return render(request, 'friendlist.html', context=context)
+
+
+def like_unlike_post(request):
+    if request.method == 'POST':
+        post_id = int(request.POST.get('post_id'))
+        post = UserPost.objects.get(id=post_id)
+        profile = Profile.objects.get(user=request.user)
+        if profile in post.liked.all():
+            post.liked.remove(profile)
+        else:
+            post.liked.add(profile)
+
+        like, like_added = PostLike.objects.get_or_create(profile=request.user.profile, post=post)
+
+        if not like_added:
+            if like.value == 'Like':
+                like.value = 'Unlike'
+            else:
+                like.value = 'Like'
+        else:
+            like.value = 'Like'
+
+        post.save()
+        like.save()
+        return redirect('posts')

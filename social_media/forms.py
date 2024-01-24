@@ -1,7 +1,9 @@
 # forms.py in your Django app
 
 from django import forms
-from .models import UserPost
+from django.contrib.auth.models import User
+
+from .models import UserPost, Profile
 
 
 class UserPostForm(forms.ModelForm):
@@ -14,3 +16,17 @@ class UserPostForm(forms.ModelForm):
             'profile': forms.HiddenInput(),
             'post': forms.Textarea(),
         }
+
+
+class UserUpdateForm(forms.ModelForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'last_name',)
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ('display_name', 'profile_pic',)

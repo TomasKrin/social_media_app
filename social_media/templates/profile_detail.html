@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>{{ profile.display_name }} profile</h1>
+<hr>
+<div class="d-flex">
+    <img src="{{ profile.profile_pic.url }}" alt="profile_pic" class="myprofile-pic mr-5">
+    <div class="profile-info">
+        <h3>{{ profile.display_name }}</h3>
+        <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+    </div>
+</div>
+<p>Profile views: {{ profile.profile_views }}</p>
+<p>Number of posts: {{ profile.get_posts_count }}</p>
+<p>Friends count: {{ profile.get_friends_count }}</p>
+<p>Friends:</p>
+<ul>
+    {% for friend in friends_preview %}
+    <li>
+        <a href="{% url 'profile' friend.profile.id %}">
+            <div>
+                <img src="{{ friend.profile.profile_pic.url }}" alt="profile_pic" height="50px" width="50px">
+                {{ friend.profile.display_name }}
+            </div>
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'friends' profile.id %}">Click to see all friend list</a>
+
+
+{% endblock %}
