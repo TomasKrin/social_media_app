@@ -153,26 +153,80 @@ def like_unlike_post(request):
 def post_detail_view(request, post_id):
     post = get_object_or_404(UserPost, id=post_id)
     comments = PostComment.objects.filter(post=post).order_by('-date_posted')
+    comment_form = CommentModelForm(initial={'post': post})
+    update_post_form = UserPostForm(instance=post)
 
     if request.method == 'POST':
-        comment_form = CommentModelForm(request.POST)
-        if comment_form.is_valid():
-            new_comment = comment_form.save(commit=False)
-            new_comment.profile = request.user.profile
-            new_comment.post = post
-            new_comment.save()
-            messages.success(request, "Your comment has been posted.")
-            return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
-    else:
-        comment_form = CommentModelForm(initial={'post': post})
+        if 'submit_comment' in request.POST:
+            comment_form = CommentModelForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.profile = request.user.profile
+                new_comment.post = post
+                new_comment.save()
+                messages.success(request, "Your comment has been posted.")
+                return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+        elif 'edit_post' in request.POST:
+            update_post_form = UserPostForm(request.POST, request.FILES, instance=post)
+            if update_post_form.is_valid():
+                update_post_form.save()
+                messages.success(request, "Your post has been updated.")
+                return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
 
     context = {
         'post': post,
         'comments': comments,
-        'comment_form': comment_form
+        'comment_form': comment_form,
+        'update_post_form': update_post_form
     }
 
     return render(request, 'post_detail.html', context)
+
+
+# def update_comment(request, comment_id):
+#     comment = get_object_or_404(PostComment, id=comment_id)
+#     edit_comment_form = CommentModelForm(request.POST, instance=comment)
+#     print(request.POST)
+#     if request.method == 'POST' and 'update_comment' in request.POST:
+#         if edit_comment_form.is_valid():
+#             edit_comment_form.save()
+#             messages.success(request, "Your comment has been updated.")
+#             return HttpResponseRedirect(reverse('post_detail', args=[comment.post.id]))
+#         else:
+#             messages.error(request, "You do not have permission to edit this comment.")
+#     else:
+#         edit_comment_form = CommentModelForm(instance=comment)
+#
+#     context = {
+#         'edit_comment_form': edit_comment_form,
+#         'comment': comment
+#     }
+#     return render(request, 'post_detail.html', context)
+
+
+def delete_post(request, post_id):
+    if request.method == 'POST' and 'delete_post' in request.POST:
+        post = get_object_or_404(UserPost, id=post_id)
+        if request.user.profile == post.profile:
+            post.delete()
+            messages.success(request, "Your post has been deleted.")
+            return redirect('posts')
+        else:
+            messages.error(request, "You do not have permission to delete this post.")
+    return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+
+
+def delete_comment(request, comment_id):
+    if request.method == 'POST' and 'delete_comment' in request.POST:
+        comment = get_object_or_404(PostComment, id=comment_id)
+        post_id = comment.post.id
+        if request.user.profile == comment.profile:
+            comment.delete()
+            messages.success(request, "Your comment has been deleted.")
+        else:
+            messages.error(request, "You do not have permission to delete this comment.")
+        return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+    return redirect('posts')
 
 
 def like_unlike_comment(request, comment_id):

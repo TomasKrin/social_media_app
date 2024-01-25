@@ -119,9 +119,9 @@ main{
 
 .postContainer{
     display: flex;
-    gap: 16px;
+    gap: 5px;
     align-items: center;
-    text-align: middle;
+    text-align: bottom;
 }
 
 .modal-form {
@@ -172,4 +172,25 @@ main{
     color: #3f51b5;
     border: none;
     background-color: transparent;
+}
+
+.post-control{
+    width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.edit-btn, .delete-btn{
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.edit-btn:hover{
+    color: #3f51b5;
+}
+
+.delete-btn:hover{
+    color: red;
 }

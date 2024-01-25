@@ -2,7 +2,64 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="container pt-2 pr-3">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 30px;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="modal-form" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mt-4">Edit Post</legend>
+                        {{ update_post_form | crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button name="edit_post" type="submit" class="btn btn-info">Save</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="color: black;"> Are you sure, you want to delete post:</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" style="font-size: 30px;">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="color: black;">
+                <form action="{% url 'delete_post' post.id %}" method="post">
+                    {% csrf_token %}
+                    <p class="pl-2">{{ post.post }}</p>
+                    {% if post.img %}
+                    <div class="img-container">
+                        <img src="{{ post.img.url }}">
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <button name="delete_post" type="submit" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="postCardWrapper">
+    {% if user.is_authenticated %}
+    {% endif %}
     <div class="postContainer">
         <small>
             <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
@@ -16,7 +73,7 @@
         <img src="{{ post.img.url }}">
     </div>
     {% endif %}
-    <div class="d-flex">
+    <div class="post-control">
         <span class="mr-2">{{ post.num_likes }} Likes</span>
         <form action="{% url 'liked' %}" method="post">
             {% csrf_token %}
@@ -29,15 +86,50 @@
                 {% endif %}
             </button>
         </form>
+        <div>
+            {% if user.profile == post.profile %}
+            <small class="edit-btn" data-toggle="modal" data-target="#exampleModal">
+                <i><b>Edit</b></i>
+            </small>
+            <small class="delete-btn" data-toggle="modal" data-target="#exampleModal2">
+                <i><b>Delete</b></i>
+            </small>
+            {% endif %}
+        </div>
     </div>
     <form class="comment-form" method="post">
         {% csrf_token %}
         {{ comment_form | crispy}}
-        <button type="submit" class="btn btn-info">Post
-            <Comment></Comment>
+        <button name="submit_comment" type="submit" class="btn btn-info">
+            Post
         </button>
     </form>
+
     {% for comment in comments %}
+    <div class="modal fade" id="exampleModal4-{{ comment.id }}" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color: black;"> Are you sure, you want to delete comment:</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" style="font-size: 30px;">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="color: black;">
+                    <form action="{% url 'delete_comment' comment.id %}" method="post">
+                        {% csrf_token %}
+                        <p class="pl-2">{{ comment.comment }}</p>
+                        <hr>
+                        <button name="delete_comment" type="submit" class="btn btn-danger">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="comment">
         <div class="postContainer">
             <small>
@@ -47,17 +139,27 @@
             <small><i>{{ comment.format_date }}</i></small>
         </div>
         <p class="mt-4">{{ comment.comment }}</p>
-        <small class="mr-2">{{ comment.num_likes }} Likes</small>
-        <form action="{% url 'liked_comment' comment.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="like-button">
-                {% if user.profile not in comment.liked_comment.all %}
-                <i class="fa-regular fa-thumbs-up"></i>
-                {% else %}
-                <i class="fa-solid fa-thumbs-up"></i>
+        <div class="post-control">
+            <span class="mr-2">{{ post.num_likes }} Likes</span>
+            <form action="{% url 'liked' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <button type="submit" class="like-button">
+                    {% if user.profile not in post.liked.all %}
+                    <i class="fa-regular fa-thumbs-up"></i>
+                    {% else %}
+                    <i class="fa-solid fa-thumbs-up"></i>
+                    {% endif %}
+                </button>
+            </form>
+            <div>
+                {% if user.profile == comment.profile %}
+                <small class="delete-btn" data-toggle="modal" data-target="#exampleModal4-{{ comment.id }}">
+                    <i><b>Delete</b></i>
+                </small>
                 {% endif %}
-            </button>
-        </form>
+            </div>
+        </div>
         <hr>
     </div>
     {% endfor %}
