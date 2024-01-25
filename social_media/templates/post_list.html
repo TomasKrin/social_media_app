@@ -41,8 +41,11 @@
     {% for post in post_list %}
     <div class="postCardWrapper">
         <div class="postContainer">
-            <small><i><b>{{ post.profile }}</b></i></small>
-            <small>{{ post.format_date }}</small>
+            <small>
+                <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                <i><b>{{ post.profile }}</b></i>
+            </small>
+            <small><i>{{ post.format_date }}</i></small>
         </div>
         <p>{{ post.post }}</p>
         {% if post.img %}

@@ -3,9 +3,12 @@
 {% block content %}
 
 <div class="postCardWrapper">
-    <div class="postContaine">
-        <small><i><b>{{ post.profile }}</b></i></small>
-        <small>{{ post.format_date }}</small>
+    <div class="postContainer">
+        <small>
+            <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+            <i><b>{{ post.profile }}</b></i>
+        </small>
+        <small><i>{{ post.format_date }}</i></small>
     </div>
     <p>{{ post.post }}</p>
     {% if post.img %}
@@ -36,10 +39,15 @@
     </form>
     {% for comment in comments %}
     <div class="comment">
-        <small><i><b>{{ comment.profile }}</b></i></small>
-        <small>{{ comment.format_date }}</small>
-        <p>{{ comment.comment }}</p>
-        <small class="mr-2">{{ post.num_likes }} Likes</small>
+        <div class="postContainer">
+            <small>
+                <img src="{{comment.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                <i><b>{{ comment.profile }}</b></i>
+            </small>
+            <small><i>{{ comment.format_date }}</i></small>
+        </div>
+        <p class="mt-4">{{ comment.comment }}</p>
+        <small class="mr-2">{{ comment.num_likes }} Likes</small>
         <form action="{% url 'liked_comment' comment.id %}" method="post">
             {% csrf_token %}
             <button type="submit" class="like-button">

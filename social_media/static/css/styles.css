@@ -25,7 +25,9 @@ body{
 }
 
 main{
+    width: 90vw;
     display: flex;
+    justify-content: center;
 }
 .wrapper {
     display: flex;
@@ -37,20 +39,14 @@ main{
     background-color: yellow;
 }
 .content {
-    margin: 0 auto;
     padding: 20px;
 }
+
 @media (max-width: 768px) {
     .sidebar {
         width: 30%;
         height: auto;
     }
-}
-
-.register {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
 }
 
 .login-form {
@@ -107,7 +103,6 @@ main{
 .wrapper-posts {
     display: flex;
     flex-direction: column;
-    margin-left: 100px;
     gap: 20px;
 }
 
@@ -119,12 +114,14 @@ main{
     gap: 16px;
     position: relative;
     color: black;
+    width: 600px;
 }
 
 .postContainer{
     display: flex;
     gap: 16px;
     align-items: center;
+    text-align: middle;
 }
 
 .modal-form {
