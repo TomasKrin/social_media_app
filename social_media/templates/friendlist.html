@@ -7,7 +7,7 @@
 {% for friend in friends %}
 <ul>
     <li>
-        <a href="{% url 'profile' friend.profile.id %}">
+        <a href="{% url 'profile' friend.profile.id %}" class="page-content-a">
             <div>
                 <img src="{{ friend.profile.profile_pic.url }}" alt="profile_pic" height="50px" width="50px">
                 {{ friend.profile.display_name }}

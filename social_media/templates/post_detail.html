@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="postCardWrapper">
+    <div class="postContaine">
+        <small><i><b>{{ post.profile }}</b></i></small>
+        <small>{{ post.format_date }}</small>
+    </div>
+    <p>{{ post.post }}</p>
+    {% if post.img %}
+    <div class="img-container">
+        <img src="{{ post.img.url }}">
+    </div>
+    {% endif %}
+    <div class="d-flex">
+        <span class="mr-2">{{ post.num_likes }} Likes</span>
+        <form action="{% url 'liked' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <button type="submit" class="like-button">
+                {% if user.profile not in post.liked.all %}
+                <i class="fa-regular fa-thumbs-up"></i>
+                {% else %}
+                <i class="fa-solid fa-thumbs-up"></i>
+                {% endif %}
+            </button>
+        </form>
+    </div>
+    <form class="comment-form" method="post">
+        {% csrf_token %}
+        {{ comment_form | crispy}}
+        <button type="submit" class="btn btn-info">Post
+            <Comment></Comment>
+        </button>
+    </form>
+    {% for comment in comments %}
+    <div class="comment">
+        <small><i><b>{{ comment.profile }}</b></i></small>
+        <small>{{ comment.format_date }}</small>
+        <p>{{ comment.comment }}</p>
+        <small class="mr-2">{{ post.num_likes }} Likes</small>
+        <form action="{% url 'liked_comment' comment.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="like-button">
+                {% if user.profile not in comment.liked_comment.all %}
+                <i class="fa-regular fa-thumbs-up"></i>
+                {% else %}
+                <i class="fa-solid fa-thumbs-up"></i>
+                {% endif %}
+            </button>
+        </form>
+        <hr>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

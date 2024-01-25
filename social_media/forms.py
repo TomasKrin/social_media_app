@@ -1,5 +1,3 @@
-# forms.py in your Django app
-
 from django import forms
 from django.contrib.auth.models import User
 
@@ -39,4 +37,8 @@ class CommentModelForm(forms.ModelForm):
         widgets = {
             'profile': forms.HiddenInput(),
             'post': forms.HiddenInput(),
+            'comment': forms.Textarea(),
+        }
+        labels = {
+            'comment': 'Add a comment',
         }

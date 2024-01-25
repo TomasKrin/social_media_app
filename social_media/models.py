@@ -26,21 +26,17 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
         profile_pic = Image.open(self.profile_pic.path)
         original_width, original_height = profile_pic.size
-
         if profile_pic.width > profile_pic.height:
             desired_height = 500
             desired_width = 700
         else:
             desired_height = 500
             desired_width = 500
-
         aspect_ratio = original_width / original_height
         new_height = desired_height
         new_width = int(aspect_ratio * new_height)
-
         if new_width > desired_width:
             new_width = desired_width
             new_height = int(new_width / aspect_ratio)
@@ -88,7 +84,6 @@ class UserPost(models.Model):
         if self.img:
             img = Image.open(self.img.path)
             max_height = 300
-
             if img.height > max_height:
                 aspect_ratio = img.width / img.height
                 new_width = int(max_height * aspect_ratio)
@@ -108,6 +103,12 @@ class PostComment(models.Model):
     post = models.ForeignKey(UserPost, on_delete=models.CASCADE)
     liked_comment = models.ManyToManyField(Profile, related_name='commentlikes', blank=True)
     comment = models.TextField(verbose_name='Comment')
+
+    def num_likes(self):
+        return self.liked_comment.all().count()
+
+    def format_date(self):
+        return self.date_posted.strftime('%Y-%m-%d %H:%M')
 
     def get_post_id(self):
         return self.post.id

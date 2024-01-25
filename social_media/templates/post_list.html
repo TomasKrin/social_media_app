@@ -20,7 +20,7 @@
                         {{ form | crispy }}
                     </fieldset>
                     <div class="form-group">
-                        <button name="submit_post" type="submit" class="btn btn-info">Post</button>
+                        <button type="submit" class="btn btn-info">Post</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </form>
@@ -51,11 +51,11 @@
         </div>
         {% endif %}
         <div class="d-flex">
-            <span class="mr-2">{{ post.num_likes }}</span>
+            <span class="mr-2">{{ post.num_likes }} Likes</span>
             <form action="{% url 'liked' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button type="submit">
+                <button type="submit" class="like-button">
                     {% if user.profile not in post.liked.all %}
                     <i class="fa-regular fa-thumbs-up"></i>
                     {% else %}
@@ -64,11 +64,7 @@
                 </button>
             </form>
         </div>
-        <form action="">
-            <fieldset>
-                {{ comment_form | crispy }}
-            </fieldset>
-        </form>
+        <a href="{% url 'post_detail' post.id %}" class="post-a">Check comments</a>
     </div>
     {% endfor %}
 </div>

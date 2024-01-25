@@ -6,23 +6,38 @@ body{
     color: white;
 }
 
+.page-content-a {
+    color: white;
+}
+
+.page-content-a:hover {
+    text-decoration: none;
+    color: red;
+}
+
+.post-a{
+    color: black;
+}
+
+.post-a:hover{
+    text-decoration: none;
+    color: red;
+}
+
 main{
     display: flex;
 }
 .wrapper {
-    position: absolute;
-    left:0;
     display: flex;
     width:200px;
 }
 .sidebar {
     height: 90vh;
-    width: 30%;
     overflow-y: auto;
     background-color: yellow;
 }
 .content {
-    width: 70%;
+    margin: 0 auto;
     padding: 20px;
 }
 @media (max-width: 768px) {
@@ -97,7 +112,6 @@ main{
 }
 
 .postCardWrapper {
-    width: 100%;
     padding: 16px;
     background-color: snow;
     display: flex;
@@ -134,8 +148,8 @@ main{
 }
 
 .myprofile-pic{
-    width: 300px;        /* Fixed width */
-    height: 300px;       /* Fixed height */
+    width: 300px;
+    height: 300px;
     object-position: center;
     margin-left: 20px:
     margin-right: 20px;
@@ -146,4 +160,19 @@ main{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.comment-form textarea{
+    height: 100px;
+}
+
+.comment-form .asteriskField{
+    display: none;
+}
+
+.like-button{
+    cursor: pointer;
+    color: #3f51b5;
+    border: none;
+    background-color: transparent;
 }

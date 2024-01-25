@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_protect
 from django.views import generic
 
 from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm, CommentModelForm
-from social_media.models import UserPost, Profile, PostLike
+from social_media.models import UserPost, Profile, PostLike, PostComment, CommentLike
 
 
 @csrf_protect
@@ -54,21 +55,13 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
     form_class = UserPostForm
     success_url = reverse_lazy('posts')
 
-    comment_form_class = CommentModelForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['comment_form'] = self.comment_form_class(prefix='comment')
-        return context
+    def get_queryset(self):
+        return UserPost.objects.all().order_by('-date_posted')
 
     def post(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset()
         form = self.get_form()
-        comment_form = self.comment_form_class(request.POST, prefix='comment')
-        if 'submit_post' in request.POST and form.is_valid():
+        if form.is_valid():
             return self.form_valid(form)
-        elif 'submit_comment' in request.POST and comment_form.is_valid():
-            return self.comment_form_valid(comment_form)
         else:
             return self.form_invalid(form)
 
@@ -76,19 +69,6 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
         form.instance.profile = self.request.user.profile
         form.save()
         return super().form_valid(form)
-
-    def comment_form_valid(self, form):
-        post_id = self.request.POST.get('post_id')
-        post = get_object_or_404(UserPost, id=post_id)
-        comment = form.save(commit=False)
-        comment.profile = self.request.user.profile
-        comment.post = post
-        comment.save()
-        messages.success(self.request, "Your comment has been added!")
-        return redirect('posts')
-
-    def get_queryset(self):
-        return UserPost.objects.all().order_by('-date_posted')
 
 
 @login_required
@@ -152,9 +132,7 @@ def like_unlike_post(request):
             post.liked.remove(profile)
         else:
             post.liked.add(profile)
-
         like, like_added = PostLike.objects.get_or_create(profile=request.user.profile, post=post)
-
         if not like_added:
             if like.value == 'Like':
                 like.value = 'Unlike'
@@ -165,4 +143,59 @@ def like_unlike_post(request):
 
         post.save()
         like.save()
-        return redirect('posts')
+        referer_url = request.META.get('HTTP_REFERER')
+        if referer_url:
+            return HttpResponseRedirect(referer_url)
+        else:
+            return redirect('posts')
+
+
+def post_detail_view(request, post_id):
+    post = get_object_or_404(UserPost, id=post_id)
+    comments = PostComment.objects.filter(post=post).order_by('-date_posted')
+
+    if request.method == 'POST':
+        comment_form = CommentModelForm(request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.profile = request.user.profile
+            new_comment.post = post
+            new_comment.save()
+            messages.success(request, "Your comment has been posted.")
+            return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+    else:
+        comment_form = CommentModelForm(initial={'post': post})
+
+    context = {
+        'post': post,
+        'comments': comments,
+        'comment_form': comment_form
+    }
+
+    return render(request, 'post_detail.html', context)
+
+
+def like_unlike_comment(request, comment_id):
+    if request.method == 'POST':
+        comment = PostComment.objects.get(id=comment_id)
+        profile = Profile.objects.get(user=request.user)
+        if profile in comment.liked_comment.all():
+            comment.liked_comment.remove(profile)
+        else:
+            comment.liked_comment.add(profile)
+        like, like_added = CommentLike.objects.get_or_create(profile=request.user.profile, comment=comment)
+        if not like_added:
+            if like.value == 'Like':
+                like.value = 'Unlike'
+            else:
+                like.value = 'Like'
+        else:
+            like.value = 'Like'
+
+        comment.save()
+        like.save()
+        referer_url = request.META.get('HTTP_REFERER')
+        if referer_url:
+            return HttpResponseRedirect(referer_url)
+        else:
+            return redirect('posts')
