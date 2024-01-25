@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_protect
 from django.views import generic
 
-from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm
+from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm, CommentModelForm
 from social_media.models import UserPost, Profile, PostLike
 
 
@@ -54,13 +54,21 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
     form_class = UserPostForm
     success_url = reverse_lazy('posts')
 
-    def get_queryset(self):
-        return UserPost.objects.all().order_by('-date_posted')
+    comment_form_class = CommentModelForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comment_form'] = self.comment_form_class(prefix='comment')
+        return context
 
     def post(self, request, *args, **kwargs):
+        self.object_list = self.get_queryset()
         form = self.get_form()
-        if form.is_valid():
+        comment_form = self.comment_form_class(request.POST, prefix='comment')
+        if 'submit_post' in request.POST and form.is_valid():
             return self.form_valid(form)
+        elif 'submit_comment' in request.POST and comment_form.is_valid():
+            return self.comment_form_valid(comment_form)
         else:
             return self.form_invalid(form)
 
@@ -68,6 +76,19 @@ class UserPostsView(generic.edit.FormMixin, generic.ListView):
         form.instance.profile = self.request.user.profile
         form.save()
         return super().form_valid(form)
+
+    def comment_form_valid(self, form):
+        post_id = self.request.POST.get('post_id')
+        post = get_object_or_404(UserPost, id=post_id)
+        comment = form.save(commit=False)
+        comment.profile = self.request.user.profile
+        comment.post = post
+        comment.save()
+        messages.success(self.request, "Your comment has been added!")
+        return redirect('posts')
+
+    def get_queryset(self):
+        return UserPost.objects.all().order_by('-date_posted')
 
 
 @login_required

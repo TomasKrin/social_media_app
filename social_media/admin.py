@@ -18,7 +18,7 @@ class UserPostAdmin(admin.ModelAdmin):
     list_filter = ('date_posted', 'profile',)
     search_fields = ('profile__display_name', 'profile__user__username')
     fieldsets = (
-        ('Post', {'fields': ('profile', 'post', 'img')}),
+        ('Post', {'fields': ('date_posted', 'profile', 'post', 'img')}),
     )
 
 
@@ -27,7 +27,7 @@ class PostCommentAdmin(admin.ModelAdmin):
     list_filter = ('date_posted', 'profile',)
     search_fields = ('profile__display_name', 'profile__user__username')
     fieldsets = (
-        ('Comment', {'fields': ('comment',)}),
+        ('Comment', {'fields': ('profile', 'post', 'comment',)}),
     )
 
 

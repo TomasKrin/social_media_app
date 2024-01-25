@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import UserPost, Profile
+from .models import UserPost, Profile, PostComment
 
 
 class UserPostForm(forms.ModelForm):
@@ -30,3 +30,13 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ('display_name', 'profile_pic',)
+
+
+class CommentModelForm(forms.ModelForm):
+    class Meta:
+        model = PostComment
+        fields = ('profile', 'post', 'comment',)
+        widgets = {
+            'profile': forms.HiddenInput(),
+            'post': forms.HiddenInput(),
+        }

@@ -20,7 +20,7 @@
                         {{ form | crispy }}
                     </fieldset>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-info">Post</button>
+                        <button name="submit_post" type="submit" class="btn btn-info">Post</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </form>
@@ -64,6 +64,11 @@
                 </button>
             </form>
         </div>
+        <form action="">
+            <fieldset>
+                {{ comment_form | crispy }}
+            </fieldset>
+        </form>
     </div>
     {% endfor %}
 </div>
