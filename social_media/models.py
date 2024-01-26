@@ -5,6 +5,12 @@ from django.db import models
 
 
 class Profile(models.Model):
+    """
+      Represents a user profile, including personal details, friends, profile picture
+      and a function from Relationship model manager to get the received friend invites for
+      corresponding profile.
+    """
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     display_name = models.CharField(max_length=50)
     friends = models.ManyToManyField(User, blank=True, related_name='friends')
@@ -59,12 +65,19 @@ STATUS_CHOICE = (
 
 
 class RelationshipManager(models.Manager):
+    """
+        Custom manager for Relationship model to handle received invitations to friends.
+    """
+
     def invitations_received(self, receiver):
         qs = Relationship.objects.filter(receiver=receiver, status='send')
         return qs
 
 
 class Relationship(models.Model):
+    """
+        Represents a relationship between two user profiles, tracking the status.
+    """
     sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='receiver')
     status = models.CharField(max_length=8, choices=STATUS_CHOICE)
@@ -78,6 +91,9 @@ class Relationship(models.Model):
 
 
 class UserPost(models.Model):
+    """
+      Represents a post made by a user, containing text and optional image, with like functionality.
+    """
     date_posted = models.DateTimeField(auto_now_add=True, blank=True)
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='posts')
     post = models.TextField(verbose_name='Post')
@@ -109,6 +125,9 @@ class UserPost(models.Model):
 
 
 class PostComment(models.Model):
+    """
+       Represents a comment on a user post, including the commenter's profile and like functionality.
+    """
     date_posted = models.DateTimeField(auto_now_add=True)
     profile = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, blank=True)
     post = models.ForeignKey(UserPost, on_delete=models.CASCADE)
@@ -137,6 +156,9 @@ LIKE_CHOICES = (
 
 
 class PostLike(models.Model):
+    """
+      Represents a reaction on a user post, tracking the user who reacted and the type of reaction.
+    """
     like_added = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(UserPost, on_delete=models.CASCADE, related_name='likes')
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
@@ -147,6 +169,9 @@ class PostLike(models.Model):
 
 
 class CommentLike(models.Model):
+    """
+       Represents a reaction on a post comment, detailing the user who reacted and the type of reaction.
+    """
     like_added = models.DateTimeField(auto_now_add=True)
     comment = models.ForeignKey(PostComment, on_delete=models.CASCADE)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)

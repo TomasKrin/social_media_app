@@ -27,16 +27,15 @@
         </div>
     </div>
 </div>
-
+{% if user.is_authenticated %}
+<div class="modal-trigger-container mb-3">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Create a Post
+    </button>
+</div>
+{% endif %}
 {% if post_list.all %}
 <div class="wrapper-posts">
-    {% if user.is_authenticated %}
-    <div class="modal-trigger-container">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Create a Post
-        </button>
-    </div>
-    {% endif %}
     {% for post in post_list %}
     <div class="postCardWrapper">
         <div class="postContainer">
@@ -73,6 +72,8 @@
 </div>
 {% else %}
 <p>There are no posts yet..</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A accusamus autem culpa dolore eaque esse est expedita fuga id, illum ipsam labore magnam nulla quam quisquam sapiente ullam voluptates voluptatibus?</p>
+
 {% endif %}
 
 <script>
