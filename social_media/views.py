@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.decorators.csrf import csrf_protect
@@ -126,6 +126,7 @@ def friends_view(request, pk):
 
     context = {
         'profile': profile,
+        'pk': pk,
         'friends': profile.get_friends()
     }
 
@@ -133,30 +134,35 @@ def friends_view(request, pk):
 
 
 def like_unlike_post(request):
-    if request.method == 'POST':
-        post_id = int(request.POST.get('post_id'))
-        post = UserPost.objects.get(id=post_id)
-        profile = Profile.objects.get(user=request.user)
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        post_id = request.POST.get('post_id')
+        if not post_id:
+            return JsonResponse({'status': 'Invalid post ID'}, status=400)
+
+        post = get_object_or_404(UserPost, id=post_id)
+        profile = request.user.profile
+        liked = False
+
         if profile in post.liked.all():
             post.liked.remove(profile)
         else:
             post.liked.add(profile)
-        like, like_added = PostLike.objects.get_or_create(profile=request.user.profile, post=post)
-        if not like_added:
-            if like.value == 'Like':
-                like.value = 'Unlike'
-            else:
-                like.value = 'Like'
+            liked = True
+
+        like, created = PostLike.objects.get_or_create(profile=profile, post=post)
+        if not created:
+            like.value = 'Unlike' if like.value == 'Like' else 'Like'
         else:
             like.value = 'Like'
-
-        post.save()
         like.save()
-        referer_url = request.META.get('HTTP_REFERER')
-        if referer_url:
-            return HttpResponseRedirect(referer_url)
-        else:
-            return redirect('posts')
+
+        data = {
+            'liked': liked,
+            'like_count': post.liked.all().count(),
+        }
+        return JsonResponse(data)
+
+    return JsonResponse({'status': 'Invalid request'}, status=400)
 
 
 def post_detail_view(request, post_id):
@@ -222,7 +228,7 @@ def delete_post(request, post_id):
             return redirect('posts')
         else:
             messages.error(request, "You do not have permission to delete this post.")
-    return HttpResponseRedirect(reverse('post_detail', args=[post_id]))
+    return reverse('post_detail', args=[post_id])
 
 
 def delete_comment(request, comment_id):
@@ -238,30 +244,36 @@ def delete_comment(request, comment_id):
     return redirect('posts')
 
 
-def like_unlike_comment(request, comment_id):
-    if request.method == 'POST':
-        comment = PostComment.objects.get(id=comment_id)
-        profile = Profile.objects.get(user=request.user)
+def like_unlike_comment(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        comment_id = request.POST.get('comment_id')
+        if not comment_id:
+            return JsonResponse({'status': 'Invalid comment ID'}, status=400)
+
+        comment = get_object_or_404(PostComment, id=comment_id)
+        profile = request.user.profile
+        liked = False
+
         if profile in comment.liked_comment.all():
             comment.liked_comment.remove(profile)
         else:
             comment.liked_comment.add(profile)
-        like, like_added = CommentLike.objects.get_or_create(profile=request.user.profile, comment=comment)
-        if not like_added:
-            if like.value == 'Like':
-                like.value = 'Unlike'
-            else:
-                like.value = 'Like'
+            liked = True
+
+        like, created = CommentLike.objects.get_or_create(profile=profile, comment=comment)
+        if not created:
+            like.value = 'Unlike' if like.value == 'Like' else 'Like'
         else:
             like.value = 'Like'
-
-        comment.save()
         like.save()
-        referer_url = request.META.get('HTTP_REFERER')
-        if referer_url:
-            return HttpResponseRedirect(referer_url)
-        else:
-            return redirect('posts')
+
+        data = {
+            'liked': liked,
+            'like_count': comment.liked_comment.all().count(),
+        }
+        return JsonResponse(data)
+
+    return JsonResponse({'status': 'Invalid request'}, status=400)
 
 
 def invites_reveived_view(request):
@@ -321,3 +333,15 @@ def remove_friend(request):
         messages.success(request, "Friend has been removed.")
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', 'friends'))
     return redirect('friends')
+
+
+def search(request):
+    query_text = request.GET.get("search_text", "")
+    search_results = Profile.objects.filter(Q(display_name__icontains=query_text) |
+                                            Q(user__first_name__icontains=query_text) |
+                                            Q(user__last_name__icontains=query_text))
+    context_t = {
+        "profiles_found": search_results,
+        "query_text_t": query_text
+    }
+    return render(request, "search.html", context=context_t)

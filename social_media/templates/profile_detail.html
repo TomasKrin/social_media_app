@@ -1,43 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">{{ profile.display_name }} Profile</h1>
+    <hr>
 
+    <div class="d-flex align-items-center mb-4">
+        <img src="{{ profile.profile_pic.url }}" alt="profile_pic" class="myprofile-pic mr-5"
+             style="width: 150px; height: 150px;">
+        <div class="profile-info">
+            <h3>{{ profile.display_name }}</h3>
+            <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+            {% if profile not in user.friends.all %}
+            {% if profile not in request.user.profile.friends.all and not existing_relationship %}
+            <form method="post" action="{% url 'invite' %}">
+                {% csrf_token %}
+                <input type="hidden" name="profile_id" value="{{ profile.id }}">
+                <button class="btn btn-primary btn-sm" type="submit">Invite to Friends</button>
+            </form>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
 
-<h1>{{ profile.display_name }} profile</h1>
-<hr>
-<div class="d-flex">
-    <img src="{{ profile.profile_pic.url }}" alt="profile_pic" class="myprofile-pic mr-5">
-    <div class="profile-info">
-        <h3>{{ profile.display_name }}</h3>
-        <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
-        {% if profile not in user.friends.all %}
-        {% if profile not in request.user.profile.friends.all and not existing_relationship %}
-        <form method="post" action="{% url 'invite' %}">
-            {% csrf_token %}
-            <input type="hidden" name="profile_id" value="{{ profile.id }}">
-            <button class="btn btn-primary btn-sm" type="submit">Invite to friends</button>
-        </form>
-        {% endif %}
+    <div class="mb-3 d-flex gap-2">
+        <div class="counter">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Profile Views</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.profile_views }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="counter ml-2">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Posts</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.get_posts_count }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="counter ml-2">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Friends</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.get_friends_count }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-5">
+        <h3>Friends:</h3>
+        {% if friends_preview %}
+        <div class="list-group">
+            {% for friend in friends_preview %}
+            <a href="{% url 'profile' friend.profile.id %}"
+               class="list-group-item list-group-item-action d-flex align-items-center">
+                <img src="{{ friend.profile.profile_pic.url }}" alt="profile_pic" style="width: 50px; height: 50px; margin-right: 15px;">
+                <span>{{ friend.profile.display_name }}</span>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% url 'friends' profile.id %}" class="btn btn-secondary">View All Friends</a>
+        </div>
+        {% else %}
+        <p>No friends to display...</p>
         {% endif %}
     </div>
 </div>
-<p>Profile views: {{ profile.profile_views }}</p>
-<p>Number of posts: {{ profile.get_posts_count }}</p>
-<p>Friends count: {{ profile.get_friends_count }}</p>
-<p>Friends:</p>
-<ul>
-    {% for friend in friends_preview %}
-    <li>
-        <a href="{% url 'profile' friend.profile.id %}" class="page-content-a">
-            <div>
-                <img src="{{ friend.profile.profile_pic.url }}" alt="profile_pic" height="50px" width="50px">
-                {{ friend.profile.display_name }}
-            </div>
-        </a>
-    </li>
-    {% endfor %}
-</ul>
-<a href="{% url 'friends' profile.id %}" class="page-content-a">Click to see all friend list</a>
-
-
 {% endblock %}

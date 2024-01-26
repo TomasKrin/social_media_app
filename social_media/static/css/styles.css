@@ -8,6 +8,7 @@ body{
 
 .page-content-a {
     color: white;
+    width: fit-content;
 }
 
 .page-content-a:hover {
@@ -167,11 +168,15 @@ main{
     display: none;
 }
 
-.like-button{
+.react-button{
     cursor: pointer;
     color: #3f51b5;
     border: none;
     background-color: transparent;
+}
+
+.react-button:focus{
+    outline: none;
 }
 
 .post-control{
@@ -201,4 +206,9 @@ main{
     border: none;
     background-color: transparent;
     margin-left: 15px;
+}
+
+.counter{
+    width: 140px;
+    margin-top: 15px;
 }

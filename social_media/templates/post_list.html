@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<!-- Modal -->
+<!-- Modal for Creating Post -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -29,6 +29,7 @@
     </div>
 </div>
 
+<!-- Post Listing -->
 {% if post_list.all %}
 <div class="wrapper-posts">
     {% if user.is_authenticated %}
@@ -43,7 +44,7 @@
         <div class="postContainer">
             <a class="post-a" href="{% url 'profile' post.profile.id %}">
                 <small>
-                    <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                    <img src="{{ post.profile.profile_pic.url }}" alt="profile_pic" height="30px" width="30px">
                     <i><b>{{ post.profile }}</b></i>
                 </small>
             </a>
@@ -57,18 +58,15 @@
         </div>
         {% endif %}
         <div class="d-flex">
-            <span class="mr-2">{{ post.num_likes }} Likes</span>
-            <form action="{% url 'liked' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button type="submit" class="like-button">
-                    {% if user.profile not in post.liked.all %}
-                    <i class="fa-regular fa-thumbs-up"></i>
-                    {% else %}
-                    <i class="fa-solid fa-thumbs-up"></i>
-                    {% endif %}
-                </button>
-            </form>
+            <span id="like-count-{{ post.id }}">{{ post.liked.all.count }} Likes</span>
+            <button type="button" class="like-button react-button" data-post-id="{{ post.id }}"
+                    data-liked="{% if user.profile in post.liked.all %}true{% else %}false{% endif %}">
+                {% if user.profile not in post.liked.all %}
+                <i class="fa-regular fa-thumbs-up"></i>
+                {% else %}
+                <i class="fa-solid fa-thumbs-up"></i>
+                {% endif %}
+            </button>
         </div>
         <a href="{% url 'post_detail' post.id %}" class="post-a"><i class="fa-solid fa-comment"></i>
             {{ post.postcomment_set.count }} comments</a>
@@ -78,4 +76,34 @@
 {% else %}
 <p>There are no posts yet..</p>
 {% endif %}
+
+<script>
+    $(document).ready(function() {
+        $('.like-button').click(function() {
+            const postId = $(this).data('post-id');
+            const likeButton = $(this);
+
+            $.ajax({
+                url: "{% url 'liked' %}",
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+
+                success: function(data) {
+                    if (data.liked) {
+                        likeButton.html('<i class="fa-solid fa-thumbs-up"></i>'); // Change to liked icon
+                    } else {
+                        likeButton.html('<i class="fa-regular fa-thumbs-up"></i>'); // Change to unliked icon
+                    }
+                    $('#like-count-' + postId).text(data.like_count + ' Likes');
+                },
+                error: function(xhr, errmsg, err) {
+                    console.error('AJAX error in request: ' + errmsg);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

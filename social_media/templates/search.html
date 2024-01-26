@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Paieškos pagal "{{ query_text_t }}" rezultatai:</h2>
+<div class="container mt-4">
+    <div class="d-flex flex-column gap-5">
+        {% if profiles_found %}
+        {% for profile in profiles_found %}
+        {% if profile != user.profile %}
+        <div class="card mb-3 pt-4 pl-2 pr-2 pb-4" style="max-width: 540px;">
+            <div class="d-flex g-0">
+                <div class="col-md-6">
+                    <img src="{{ profile.profile_pic.url }}" alt="profile_pic" height="200px" width="200px">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body" style="color:black;">
+                        <h5 class="card-title">{{ profile.display_name }}</h5>
+                        <p class="card-text">Friends count: {{ profile.get_friends_count }}</p>
+                        <p class="card-text">Post count: {{ profile.get_posts_count}}</p>
+                        <div class="d-flex flex-column" style="width: fit-content;">
+                            <a href="{% url 'profile' profile.id %}" class="btn btn-primary btn-sm mb-2">See
+                                profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <p>No friend invitations received..</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

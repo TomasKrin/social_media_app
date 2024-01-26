@@ -11,7 +11,7 @@ urlpatterns = [
     path('profile/<int:pk>/friends', views.friends_view, name='friends'),
     path('posts/liked', views.like_unlike_post, name='liked'),
     path('posts/<int:post_id>/', views.post_detail_view, name='post_detail'),
-    path('posts/liked_comment/<int:comment_id>', views.like_unlike_comment, name='liked_comment'),
+    path('posts/liked_comment/', views.like_unlike_comment, name='liked_comment'),
     path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     # path('comment/<int:comment_id>/edit/', views.update_comment, name='update_comment'),
@@ -19,5 +19,6 @@ urlpatterns = [
     path('friends/invite', views.send_invitation, name='invite'),
     path('friends/accept/', views.accept_invitation, name='accept_invitation'),
     path('remove-friend/', views.remove_friend, name='remove_friend'),
+    path("search/", views.search, name="search"),
 
 ]

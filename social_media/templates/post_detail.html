@@ -56,119 +56,170 @@
     </div>
 </div>
 
+<div class="d-flex flex-column ">
+    <a href="{% url 'posts' %}" class="page-content-a mb-4"><i class="fa-solid fa-arrow-left"></i> Back to Posts</a>
+    <div class="postCardWrapper">
+        {% if user.is_authenticated %}
+        {% endif %}
+        <div class="postContainer">
+            <a class="post-a" href="{% url 'profile' post.profile.id %}">
+                <small>
+                    <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                    <i><b>{{ post.profile }}</b></i>
+                </small>
+            </a>
+            <small><i>{{ post.format_date }}</i></small>
 
-<div class="postCardWrapper">
-    {% if user.is_authenticated %}
-    {% endif %}
-    <div class="postContainer">
-        <a class="post-a" href="{% url 'profile' post.profile.id %}">
-            <small>
-                <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
-                <i><b>{{ post.profile }}</b></i>
-            </small>
-        </a>
-        <small><i>{{ post.format_date }}</i></small>
-
-    </div>
-    <p>{{ post.post }}</p>
-    {% if post.img %}
-    <div class="img-container">
-        <img src="{{ post.img.url }}">
-    </div>
-    {% endif %}
-    <div class="post-control">
-        <span class="mr-2">{{ post.num_likes }} Likes</span>
-        <form action="{% url 'liked' %}" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="post_id" value="{{ post.id }}">
-            <button type="submit" class="like-button">
+        </div>
+        <p>{{ post.post }}</p>
+        {% if post.img %}
+        <div class="img-container">
+            <img src="{{ post.img.url }}">
+        </div>
+        {% endif %}
+        <div class="post-control">
+            <span id="like-count-{{ post.id }}">{{ post.liked.all.count }} Likes</span>
+            <button type="button" class="like-button react-button" data-post-id="{{ post.id }}"
+                    data-liked="{% if user.profile in post.liked.all %}true{% else %}false{% endif %}">
                 {% if user.profile not in post.liked.all %}
                 <i class="fa-regular fa-thumbs-up"></i>
                 {% else %}
                 <i class="fa-solid fa-thumbs-up"></i>
                 {% endif %}
             </button>
-        </form>
-        <div>
-            {% if user.profile == post.profile %}
-            <small class="edit-btn" data-toggle="modal" data-target="#exampleModal">
-                <i><b>Edit</b></i>
-            </small>
-            <small class="delete-btn" data-toggle="modal" data-target="#exampleModal2">
-                <i><b>Delete</b></i>
-            </small>
-            {% endif %}
+            <div>
+                {% if user.profile == post.profile %}
+                <small class="edit-btn" data-toggle="modal" data-target="#exampleModal">
+                    <i><b>Edit</b></i>
+                </small>
+                <small class="delete-btn" data-toggle="modal" data-target="#exampleModal2">
+                    <i><b>Delete</b></i>
+                </small>
+                {% endif %}
+            </div>
         </div>
-    </div>
-    <form class="comment-form" method="post">
-        {% csrf_token %}
-        {{ comment_form | crispy}}
-        <button name="submit_comment" type="submit" class="btn btn-info">
-            Post
-        </button>
-    </form>
+        <form class="comment-form" method="post">
+            {% csrf_token %}
+            {{ comment_form | crispy}}
+            <button name="submit_comment" type="submit" class="btn btn-info">
+                Post
+            </button>
+        </form>
 
-    {% for comment in comments %}
-    <div class="modal fade" id="exampleModal4-{{ comment.id }}" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" style="color: black;"> Are you sure, you want to delete comment:</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" style="font-size: 30px;">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" style="color: black;">
-                    <form action="{% url 'delete_comment' comment.id %}" method="post">
-                        {% csrf_token %}
-                        <p class="pl-2">{{ comment.comment }}</p>
-                        <hr>
-                        <button name="delete_comment" type="submit" class="btn btn-danger">Delete</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    </form>
+        {% for comment in comments %}
+        <div class="modal fade" id="exampleModal4-{{ comment.id }}" tabindex="-1" role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" style="color: black;"> Are you sure, you want to delete comment:</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" style="font-size: 30px;">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="color: black;">
+                        <form action="{% url 'delete_comment' comment.id %}" method="post">
+                            {% csrf_token %}
+                            <p class="pl-2">{{ comment.comment }}</p>
+                            <hr>
+                            <button name="delete_comment" type="submit" class="btn btn-danger">Delete</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="comment">
-        <div class="postContainer">
-            <a class="post-a" href="{% url 'profile' comment.profile.id %}">
-                <small>
-                    <img src="{{comment.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
-                    <i><b>{{ comment.profile }}</b></i>
-                </small>
-            </a>
-            <small><i>{{ comment.format_date }}</i></small>
-        </div>
-        <p class="mt-4">{{ comment.comment }}</p>
-        <div class="post-control">
-            <span class="mr-2">{{ comment.num_likes }} Likes</span>
-            <form action="{% url 'liked_comment' comment.id %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button type="submit" class="like-button">
+        <div class="comment">
+            <div class="postContainer">
+                <a class="post-a" href="{% url 'profile' comment.profile.id %}">
+                    <small>
+                        <img src="{{comment.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                        <i><b>{{ comment.profile }}</b></i>
+                    </small>
+                </a>
+                <small><i>{{ comment.format_date }}</i></small>
+            </div>
+            <p class="mt-4">{{ comment.comment }}</p>
+            <div class="post-control">
+                <span id="comment-like-count-{{ comment.id }}">{{ comment.liked_comment.all.count }} Likes</span>
+                <button type="button" class="comment-like-button react-button" data-comment-id="{{ comment.id }}">
                     {% if user.profile not in comment.liked_comment.all %}
                     <i class="fa-regular fa-thumbs-up"></i>
                     {% else %}
                     <i class="fa-solid fa-thumbs-up"></i>
                     {% endif %}
                 </button>
-            </form>
-            <div>
-                {% if user.profile == comment.profile %}
-                <small class="delete-btn" data-toggle="modal" data-target="#exampleModal4-{{ comment.id }}">
-                    <i><b>Delete</b></i>
-                </small>
-                {% endif %}
+
+                <div>
+                    {% if user.profile == comment.profile %}
+                    <small class="delete-btn" data-toggle="modal" data-target="#exampleModal4-{{ comment.id }}">
+                        <i><b>Delete</b></i>
+                    </small>
+                    {% endif %}
+                </div>
             </div>
+            <hr>
         </div>
-        <hr>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
 
+
+<script>
+    $(document).ready(function() {
+        $('.like-button').click(function() {
+            const postId = $(this).data('post-id');
+            const likeButton = $(this);
+
+            $.ajax({
+                url: "{% url 'liked' %}",
+                type: 'POST',
+                data: {
+                    'post_id': postId,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(data) {
+                    if (data.liked) {
+                        likeButton.html('<i class="fa-solid fa-thumbs-up"></i>'); // Change to liked icon
+                    } else {
+                        likeButton.html('<i class="fa-regular fa-thumbs-up"></i>'); // Change to unliked icon
+                    }
+                    $('#like-count-' + postId).text(data.like_count + ' Likes');
+                },
+                error: function(xhr, errmsg, err) {
+                    console.error('AJAX error in request: ' + errmsg);
+                }
+            });
+        });
+
+        $('.comment-like-button').click(function() {
+            const commentId = $(this).data('comment-id');
+            const likeButton = $(this);
+            console.log(commentId);
+
+            $.ajax({
+                url: "{% url 'liked_comment' %}",
+                type: 'POST',
+                data: {
+                    'comment_id': commentId,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(data) {
+                    if (data.liked) {
+                        likeButton.html('<i class="fa-solid fa-thumbs-up"></i>'); // Change to liked icon
+                    } else {
+                        likeButton.html('<i class="fa-regular fa-thumbs-up"></i>'); // Change to unliked icon
+                    }
+                    $('#comment-like-count-' + commentId).text(data.like_count + ' Likes'); // Update like count
+                },
+                error: function(xhr, errmsg, err) {
+                    console.error('AJAX error in request: ' + errmsg);
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}
