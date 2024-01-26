@@ -15,5 +15,9 @@ urlpatterns = [
     path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     # path('comment/<int:comment_id>/edit/', views.update_comment, name='update_comment'),
+    path('myinvites/', views.invites_reveived_view, name='myinvites'),
+    path('friends/invite', views.send_invitation, name='invite'),
+    path('friends/accept/', views.accept_invitation, name='accept_invitation'),
+    path('remove-friend/', views.remove_friend, name='remove_friend'),
 
 ]

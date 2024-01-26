@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
@@ -8,7 +9,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.views import generic
 
 from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm, CommentModelForm
-from social_media.models import UserPost, Profile, PostLike, PostComment, CommentLike
+from social_media.models import UserPost, Profile, PostLike, PostComment, CommentLike, Relationship
 
 
 @csrf_protect
@@ -99,10 +100,18 @@ def my_profile_view(request):
 
 def profile_view(request, pk):
     profile = get_object_or_404(Profile, pk=pk)
+    user_profile = request.user.profile
+
+    existing_relationship = Relationship.objects.filter(
+        (Q(sender=user_profile) & Q(receiver=profile)) |
+        (Q(sender=profile) & Q(receiver=user_profile)),
+        status='send'
+    ).exists()
 
     context = {
         'profile': profile,
-        'friends_preview': profile.get_friends()[0:5]
+        'friends_preview': profile.get_friends()[0:5],
+        'existing_relationship': existing_relationship
     }
     if profile.user == request.user:
         return redirect('myprofile')
@@ -253,3 +262,62 @@ def like_unlike_comment(request, comment_id):
             return HttpResponseRedirect(referer_url)
         else:
             return redirect('posts')
+
+
+def invites_reveived_view(request):
+    profile = Profile.objects.get(user=request.user)
+    qs = Relationship.objects.invitations_received(profile)
+
+    context = {
+        'qs': qs
+    }
+    return render(request, 'my_invites.html', context)
+
+
+@login_required
+def send_invitation(request):
+    if request.method == 'POST':
+        pk = request.POST.get('profile_id')
+        sender = get_object_or_404(Profile, user=request.user)
+        receiver = get_object_or_404(Profile, id=pk)
+        if not Relationship.objects.filter(sender=sender, receiver=receiver).exists():
+            rel = Relationship.objects.create(sender=sender, receiver=receiver, status='send')
+
+        referer_url = request.META.get('HTTP_REFERER')
+        return HttpResponseRedirect(referer_url) if referer_url else redirect('friends')
+
+
+@login_required
+def accept_invitation(request):
+    if request.method == 'POST':
+        pk = request.POST.get('relationship_id')
+        relationship = get_object_or_404(Relationship, id=pk)
+
+        if relationship.receiver.user == request.user and relationship.status == 'send':
+            relationship.status = 'accepted'
+            relationship.save()
+            messages.success(request, "Friend request accepted.")
+            return HttpResponseRedirect(reverse('friends', args=[request.user.profile.id]))
+        else:
+            messages.error(request,
+                           "You do not have permission to accept this friend request or the request is not in 'send' status.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', 'friends'))
+
+    return redirect('friends')
+
+
+@login_required
+def remove_friend(request):
+    if request.method == 'POST':
+        friend_id = request.POST.get('friend_id')
+        friend_profile = get_object_or_404(Profile, id=friend_id)
+
+        Relationship.objects.filter(sender=request.user.profile, receiver=friend_profile).delete()
+        Relationship.objects.filter(sender=friend_profile, receiver=request.user.profile).delete()
+
+        request.user.profile.friends.remove(friend_profile.user)
+        friend_profile.friends.remove(request.user)
+
+        messages.success(request, "Friend has been removed.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', 'friends'))
+    return redirect('friends')

@@ -61,11 +61,14 @@
     {% if user.is_authenticated %}
     {% endif %}
     <div class="postContainer">
-        <small>
-            <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
-            <i><b>{{ post.profile }}</b></i>
-        </small>
+        <a class="post-a" href="{% url 'profile' post.profile.id %}">
+            <small>
+                <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                <i><b>{{ post.profile }}</b></i>
+            </small>
+        </a>
         <small><i>{{ post.format_date }}</i></small>
+
     </div>
     <p>{{ post.post }}</p>
     {% if post.img %}
@@ -132,20 +135,22 @@
 
     <div class="comment">
         <div class="postContainer">
-            <small>
-                <img src="{{comment.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
-                <i><b>{{ comment.profile }}</b></i>
-            </small>
+            <a class="post-a" href="{% url 'profile' comment.profile.id %}">
+                <small>
+                    <img src="{{comment.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                    <i><b>{{ comment.profile }}</b></i>
+                </small>
+            </a>
             <small><i>{{ comment.format_date }}</i></small>
         </div>
         <p class="mt-4">{{ comment.comment }}</p>
         <div class="post-control">
-            <span class="mr-2">{{ post.num_likes }} Likes</span>
-            <form action="{% url 'liked' %}" method="post">
+            <span class="mr-2">{{ comment.num_likes }} Likes</span>
+            <form action="{% url 'liked_comment' comment.id %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="post_id" value="{{ post.id }}">
                 <button type="submit" class="like-button">
-                    {% if user.profile not in post.liked.all %}
+                    {% if user.profile not in comment.liked_comment.all %}
                     <i class="fa-regular fa-thumbs-up"></i>
                     {% else %}
                     <i class="fa-solid fa-thumbs-up"></i>

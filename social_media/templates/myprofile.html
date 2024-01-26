@@ -46,6 +46,7 @@
 <p>Number of posts: {{ profile.get_posts_count }}</p>
 <p>Friends count: {{ profile.get_friends_count }}</p>
 <p>Friends:</p>
+{% if friends_preview %}
 <ul>
     {% for friend in friends_preview %}
     <li>
@@ -59,6 +60,9 @@
     {% endfor %}
 </ul>
 <a href="{% url 'friends' profile.id %}" class="page-content-a">Click to see all friend list</a>
+{% else %}
+<p>You have no friends yet..</p>
+{% endif %}
 
 
 {% endblock %}

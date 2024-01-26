@@ -18,7 +18,7 @@ class UserPostAdmin(admin.ModelAdmin):
     list_filter = ('date_posted', 'profile',)
     search_fields = ('profile__display_name', 'profile__user__username')
     fieldsets = (
-        ('Post', {'fields': ('date_posted', 'profile', 'post', 'img')}),
+        ('Post', {'fields': ('profile', 'post', 'img')}),
     )
 
 

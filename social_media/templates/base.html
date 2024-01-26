@@ -41,18 +41,16 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top mb-5 shadow">
     <div class="container-fluid">
-        <!-- Brand/logo -->
         <a class="navbar-brand" href="/">SocialApp</a>
 
-        <!-- Toggler/collapsible Button -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <!-- Navbar links -->
+
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto"> <!-- Use ml-auto to right-align items -->
+            <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'myprofile' %}">
                     <svg class="bi bi-person"
@@ -68,14 +66,17 @@
                     </svg>
                     {{ user }}</a></li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Messages</a>
+                    <a class="nav-link
+                    {% if user.profile.get_invitations_received.count != 0 %} text-danger
+                    {% endif %}" href="{% url 'myinvites' %}">Friend Requests:
+                        {{ user.profile.get_invitations_received.count }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'friends' user.profile.id %}">Friends</a>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next=/">logout</a></li>
                 <li class="nav-item">
-                    <form class="form-inline"> <!-- Use form-inline for the search form -->
+                    <form class="form-inline">
                         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                     </form>
@@ -97,7 +98,6 @@
     <div class="content">
         <div>
             {% block content %}
-            <!-- Main content goes here -->
             {% endblock %}
         </div>
     </div>

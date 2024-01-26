@@ -194,3 +194,11 @@ main{
 .delete-btn:hover{
     color: red;
 }
+
+.remove-friend{
+    cursor: pointer;
+    color: red;
+    border: none;
+    background-color: transparent;
+    margin-left: 15px;
+}

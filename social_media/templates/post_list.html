@@ -41,10 +41,13 @@
     {% for post in post_list %}
     <div class="postCardWrapper">
         <div class="postContainer">
-            <small>
-                <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
-                <i><b>{{ post.profile }}</b></i>
-            </small>
+            <a class="post-a" href="{% url 'profile' post.profile.id %}">
+                <small>
+                    <img src="{{post.profile.profile_pic.url}}" alt="profile_pic" height="30px" width="30px">
+                    <i><b>{{ post.profile }}</b></i>
+                </small>
+            </a>
+
             <small><i>{{ post.format_date }}</i></small>
         </div>
         <p>{{ post.post }}</p>
@@ -67,7 +70,8 @@
                 </button>
             </form>
         </div>
-        <a href="{% url 'post_detail' post.id %}" class="post-a">Check Post</a>
+        <a href="{% url 'post_detail' post.id %}" class="post-a"><i class="fa-solid fa-comment"></i>
+            {{ post.postcomment_set.count }} comments</a>
     </div>
     {% endfor %}
 </div>

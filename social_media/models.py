@@ -24,6 +24,9 @@ class Profile(models.Model):
     def get_posts_count(self):
         return self.posts.all().count()
 
+    def get_invitations_received(self):
+        return Relationship.objects.invitations_received(self)
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         profile_pic = Image.open(self.profile_pic.path)
@@ -46,7 +49,7 @@ class Profile(models.Model):
         profile_pic.save(self.profile_pic.path, quality=95)
 
     def __str__(self):
-        return self.display_name
+        return f'{self.display_name}'
 
 
 STATUS_CHOICE = (
@@ -55,12 +58,20 @@ STATUS_CHOICE = (
 )
 
 
+class RelationshipManager(models.Manager):
+    def invitations_received(self, receiver):
+        qs = Relationship.objects.filter(receiver=receiver, status='send')
+        return qs
+
+
 class Relationship(models.Model):
     sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sender')
     receiver = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='receiver')
     status = models.CharField(max_length=8, choices=STATUS_CHOICE)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+
+    objects = RelationshipManager()
 
     def __str__(self):
         return f'{self.sender} -> {self.receiver} - {self.status}'

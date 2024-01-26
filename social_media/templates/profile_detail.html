@@ -10,6 +10,15 @@
     <div class="profile-info">
         <h3>{{ profile.display_name }}</h3>
         <p>{{ profile.user.first_name }} {{ profile.user.last_name }}</p>
+        {% if profile not in user.friends.all %}
+        {% if profile not in request.user.profile.friends.all and not existing_relationship %}
+        <form method="post" action="{% url 'invite' %}">
+            {% csrf_token %}
+            <input type="hidden" name="profile_id" value="{{ profile.id }}">
+            <button class="btn btn-primary btn-sm" type="submit">Invite to friends</button>
+        </form>
+        {% endif %}
+        {% endif %}
     </div>
 </div>
 <p>Profile views: {{ profile.profile_views }}</p>

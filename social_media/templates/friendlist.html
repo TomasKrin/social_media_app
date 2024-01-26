@@ -6,17 +6,22 @@
 {% if friends %}
 {% for friend in friends %}
 <ul>
-    <li>
+    <li class="d-flex align-items-center">
         <a href="{% url 'profile' friend.profile.id %}" class="page-content-a">
             <div>
                 <img src="{{ friend.profile.profile_pic.url }}" alt="profile_pic" height="50px" width="50px">
                 {{ friend.profile.display_name }}
             </div>
         </a>
+        <form method="post" action="{% url 'remove_friend' %}">
+            {% csrf_token %}
+            <input type="hidden" name="friend_id" value="{{ friend.profile.id }}">
+            <button type="submit" class="remove-friend"><i class="fa-solid fa-user-minus"></i></button>
+        </form>
     </li>
 </ul>
 {% endfor %}
 {% else %}
-<p>No friends yet..</p>
+<p>You have no friends yet..</p>
 {% endif %}
 {% endblock %}
