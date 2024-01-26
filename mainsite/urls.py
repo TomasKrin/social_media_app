@@ -24,8 +24,6 @@ urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('socialmedia/', include('social_media.urls')),
                   path('', RedirectView.as_view(url='socialmedia/', permanent=True)),
-                  path('polls/', include('polls.urls')),
-                  path('chat/', include('chat.urls')),
                   path('tinymce', include('tinymce.urls')),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
               + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

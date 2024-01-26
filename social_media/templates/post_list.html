@@ -2,7 +2,6 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<!-- Modal for Creating Post -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -29,7 +28,6 @@
     </div>
 </div>
 
-<!-- Post Listing -->
 {% if post_list.all %}
 <div class="wrapper-posts">
     {% if user.is_authenticated %}

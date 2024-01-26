@@ -31,8 +31,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'social_media.apps.SocialMediaConfig',
-    'polls',
-    'chat',
     'tinymce',
     'crispy_forms',
     'crispy_bootstrap4',
