@@ -92,9 +92,9 @@
 
                 success: function(data) {
                     if (data.liked) {
-                        likeButton.html('<i class="fa-solid fa-thumbs-up"></i>'); // Change to liked icon
+                        likeButton.html('<i class="fa-solid fa-thumbs-up"></i>');
                     } else {
-                        likeButton.html('<i class="fa-regular fa-thumbs-up"></i>'); // Change to unliked icon
+                        likeButton.html('<i class="fa-regular fa-thumbs-up"></i>');
                     }
                     $('#like-count-' + postId).text(data.like_count + ' Likes');
                 },

@@ -68,7 +68,6 @@ class RelationshipManager(models.Manager):
     """
         Custom manager for Relationship model to handle received invitations to friends.
     """
-
     def invitations_received(self, receiver):
         qs = Relationship.objects.filter(receiver=receiver, status='send')
         return qs

@@ -11,6 +11,8 @@ from django.views import generic
 from social_media.forms import UserPostForm, UserUpdateForm, ProfileUpdateForm, CommentModelForm
 from social_media.models import UserPost, Profile, PostLike, PostComment, CommentLike, Relationship
 
+import re
+
 
 @csrf_protect
 def register_user(request):
@@ -27,11 +29,26 @@ def register_user(request):
     password = request.POST["password"]
     password2 = request.POST["password2"]
 
+    def is_password_strong(passw):
+        if len(passw) < 8:
+            return False
+        if not re.search("[a-z]", passw):
+            return False
+        if not re.search("[A-Z]", passw):
+            return False
+        if not re.search("[0-9]", passw):
+            return False
+        return True
+
+    if not is_password_strong(password):
+        messages.error(request,
+                       "Password must be at least 8 characters long, include letters (both uppercase and lowercase), numbers.")
+
     if password != password2:
         messages.error(request, "Passwords don't match!!!")
 
     if User.objects.filter(username=username).exists():
-        messages.error(request, "Username %s already exists!!!" % username)
+        messages.error(request, f"Username {username} already exists!!!")
 
     if User.objects.filter(email=email).exists():
         messages.error(request, f"Email {email} already exists!!!")
@@ -41,7 +58,7 @@ def register_user(request):
 
     User.objects.create_user(username=username, email=email, password=password, first_name=first_name,
                              last_name=last_name)
-    messages.success(request, "User %s registered!!!" % username)
+    messages.success(request, f"User {username} registered!!!")
     return redirect('login')
 
 
